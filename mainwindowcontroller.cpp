@@ -1,13 +1,15 @@
-#include "mainwindow.h"
+#include "mainwindowcontroller.h"
 #include "ui_mainwindow.h"
 #include "tinifycompresser.h"
 #include <QPropertyAnimation>
 #include <QMessageBox>
 #include <QPointer>
+#include "imageinfomodel.h"
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindowController::MainWindowController(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    _imageInfoData(new ImageInfoModel())
 {
     this->initUI();
     this->initAPI();
@@ -17,12 +19,19 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug("init app");
 }
 
-MainWindow::~MainWindow()
+MainWindowController::~MainWindowController()
 {
     delete ui;
 }
+////////////////////////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::initAPI() {
+ImageInfoModel * MainWindowController::getModel() const {
+    return this->_imageInfoData;
+}
+
+
+
+void MainWindowController::initAPI() {
     m_apiKey = getSavedApiKey();
 
     if (m_apiKey == QString::null){
@@ -45,38 +54,21 @@ void MainWindow::initAPI() {
 
 }
 
-void MainWindow::initUI(){
+void MainWindowController::initUI(){
     ui->setupUi(this);
-    this->initImageInfoHolderView();
+    this->ui->imageInfoView->setModel(this->getModel());
+
     this->ui->compressProgressBar->reset();
 }
 
-void MainWindow::initImageInfoHolderView(){
-    ui->imageInfoHolder->setColumnCount(4);
-    ui->imageInfoHolder->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-    ui->imageInfoHolder->horizontalHeader()->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    int fullpathSectionWidth = ui->imageInfoHolder->width() * 0.4;
-    int filenameSectionWidth = ui->imageInfoHolder->width() * 0.3;
-    int sizeSectionWidth = ui->imageInfoHolder->width() * 0.15;
-    int compressedSectionWidth = ui->imageInfoHolder->width() * 0.15;
-
-    ui->imageInfoHolder->setColumnWidth(0, fullpathSectionWidth);
-    ui->imageInfoHolder->setColumnWidth(1, filenameSectionWidth);
-    ui->imageInfoHolder->setColumnWidth(2, sizeSectionWidth);
-    ui->imageInfoHolder->setColumnWidth(3, compressedSectionWidth);
-
-    QStringList headerLables;
-    headerLables << "Full path to file" << "File name" << "Size" << "Compressed";
-    ui->imageInfoHolder->setHorizontalHeaderLabels(headerLables);
-}
-
-void MainWindow::onSelectButtonClick(){
+void MainWindowController::onSelectButtonClick(){
     const QStringList selectedFiles = selectFiles();
-    this->addFiles(selectedFiles);
-    this->updateImageInfoHolderViewWithNewFiles(selectedFiles);
+    this->getModel()->addFiles(selectedFiles);
+    this->ui->imageInfoView->viewport()->repaint();
+    //this->updateImageInfoHolderViewWithNewFiles(selectedFiles);
 }
 
-const QStringList MainWindow::selectFiles(){
+const QStringList MainWindowController::selectFiles(){
     QString desktopPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
 
     const QStringList filenames = QFileDialog::getOpenFileNames(
@@ -88,16 +80,12 @@ const QStringList MainWindow::selectFiles(){
     return filenames;
 }
 
-void MainWindow::addFiles(const QStringList &filenames){
-    for(int i = 0; i < filenames.count(); ++i){
-        if(std::find(m_files.begin(), m_files.end(), ImageInfo(filenames.at(i))) == m_files.end()){
-            m_files.push_back(ImageInfo(filenames.at(i)));
-        }
-    }
+void MainWindowController::addFiles(const QStringList &filenames){
+
 }
 
-bool MainWindow::imageInfoHolderViewContainsElement(const QString &elementText){
-    int rowCount = ui->imageInfoHolder->rowCount();
+bool MainWindowController::imageInfoHolderViewContainsElement(const QString &elementText){
+    /*int rowCount = ui->imageInfoHolder->rowCount();
     int columnIndex = 0;
     bool result = false;
     for(int i = 0; i < rowCount; ++i){
@@ -106,11 +94,12 @@ bool MainWindow::imageInfoHolderViewContainsElement(const QString &elementText){
             break;
         }
     }
-    return result;
+    return result;*/
+    return true;
 }
 
-void MainWindow::updateImageInfoHolderViewWithNewFiles(const QStringList &filenames){
-        QTableWidgetItem *item;
+void MainWindowController::updateImageInfoHolderViewWithNewFiles(const QStringList &filenames){
+        /*QTableWidgetItem *item;
         int iCounter = ui->imageInfoHolder->rowCount();
         int colomnCounter = 0;
         for(int i = 0; i < filenames.count(); ++i){
@@ -137,12 +126,12 @@ void MainWindow::updateImageInfoHolderViewWithNewFiles(const QStringList &filena
 
             }
 
-       }
+       }*/
 }
 
 
-void MainWindow::onCompressButtonClick() { //update
-    qDebug("compress button");
+void MainWindowController::onCompressButtonClick() { //update
+    /*qDebug("compress button");
     ui->compressButton->setEnabled(false);
     ui->compressButton->setText("Compressing...");
 
@@ -159,12 +148,12 @@ void MainWindow::onCompressButtonClick() { //update
 
     ui->compressButton->setEnabled(true);
     ui->compressButton->setText("Compress");
-    qDebug() << "ended";
+    qDebug() << "ended";*/
 }
 
 
-void MainWindow::updateImageInfoHolderViewCompressionInfo() {
-    int sizeColumn = 2;
+void MainWindowController::updateImageInfoHolderViewCompressionInfo() {
+    /*int sizeColumn = 2;
     int compressionColumn = 3;
     QTableWidgetItem * item;
     for(ulong i = 0; i < m_files.size(); ++i){
@@ -174,11 +163,11 @@ void MainWindow::updateImageInfoHolderViewCompressionInfo() {
         item = this->ui->imageInfoHolder->item(i, compressionColumn);
         item->setText(m_files[i].isCompressed() ? "YES":"NO");
         m_files[i].isCompressed() ? item->setTextColor(QColor(0, 255, 0)) : item->setTextColor(QColor(255, 0, 0));
-    }
+    }*/
 }
 
 
-void MainWindow::onOKButtonClick() {
+void MainWindowController::onOKButtonClick() {
     QString holderText = ui->apiKeyHolder->text();
     if (holderText == "") {
         QScopedPointer<QMessageBox> warning(new QMessageBox(QMessageBox::Icon::Warning,
@@ -204,14 +193,14 @@ void MainWindow::onOKButtonClick() {
 
 
 
-QString MainWindow::getSavedApiKey() {
+QString MainWindowController::getSavedApiKey() {
     QString result = QString::null;
 
 
     return result;
 }
 
-int MainWindow::saveApiKeyToFile() {
+int MainWindowController::saveApiKeyToFile() {
     int result = SaveFailed;
 
 

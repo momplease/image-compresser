@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include "imageinfo.h"
+class ImageInfoModel;
 
 enum saveResult {
     SaveSucces,
@@ -15,22 +16,21 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindowController : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    explicit MainWindowController(QWidget *parent = 0);
+    ~MainWindowController();
 
-
+    ImageInfoModel * getModel() const;
 private slots:
     void onSelectButtonClick();
     void onCompressButtonClick();
     void onOKButtonClick();
 private:
     void initUI();
-    void initImageInfoHolderView();
     void initAPI();
 
     const QStringList selectFiles(); 
@@ -45,8 +45,8 @@ private:
     int saveApiKeyToFile();
 
     Ui::MainWindow *ui;
+    ImageInfoModel * _imageInfoData;
 
-    std::vector<ImageInfo> m_files;
     QString m_apiKey;
 };
 

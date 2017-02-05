@@ -48,7 +48,7 @@
      <string>Select</string>
     </property>
    </widget>
-   <widget class="QTableWidget" name="imageInfoHolder">
+   <widget class="QTableView" name="imageInfoView">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -69,14 +69,6 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <property name="rowCount">
-     <number>0</number>
-    </property>
-    <property name="columnCount">
-     <number>2</number>
-    </property>
-    <column/>
-    <column/>
    </widget>
    <widget class="QProgressBar" name="compressProgressBar">
     <property name="geometry">
@@ -590,7 +582,7 @@
      <x>0</x>
      <y>0</y>
      <width>720</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

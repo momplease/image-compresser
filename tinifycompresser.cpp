@@ -57,7 +57,6 @@ void TinifyCompresser::replyFinished() {
         QNetworkRequest request(url);
 
         QEventLoop downloadLoop;
-
         m_getReply = m_manager->get(request);
 
         connect(m_getReply, &QNetworkReply::finished, this, &TinifyCompresser::downloadFile);
@@ -86,7 +85,7 @@ void TinifyCompresser::downloadFile() {
 
 QString TinifyCompresser::getDownloadStringFromRawResponse(QByteArray rawResponse, QString protocoltype, QString extension) {
     QString responseString(rawResponse);
-    std::string imageExtension = "." + extension.toStdString();
+    std::string imageExtension = "." + extension.toLower().toStdString();
     std::string protocolType = protocoltype.toStdString();
     std::string stdResponeString = responseString.toStdString();
     std::string result = "";
